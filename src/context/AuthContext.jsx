@@ -82,6 +82,28 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(TOKEN_KEY);
   };
 
+  // Hàm xử lý Đăng ký
+  const register = async (email, password, fullName) => {
+    try {
+      // 1. Gọi API Backend
+      await axios.post('/api/auth/register', {
+        email: email,
+        password: password,
+        fullName: fullName,
+      });
+
+      // 2. (Không ném lỗi, vì đã thành công)
+      // Chúng ta không tự động đăng nhập,
+      // mà sẽ yêu cầu họ sang trang login để đăng nhập.
+      
+    } catch (err) {
+      // Xử lý lỗi (ví dụ: email đã tồn tại)
+      console.error('Lỗi đăng ký:', err);
+      // Ném lỗi ra để RegisterPage biết và hiển thị
+      throw err.response ? err.response.data : err;
+    }
+  };
+
   const value = {
     user,
     token,
@@ -89,6 +111,7 @@ export function AuthProvider({ children }) {
     loading,
     login,
     logout,
+    register,
   };
 
   return (
