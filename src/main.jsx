@@ -16,6 +16,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 // Nhập (import) AuthProvider
 import { AuthProvider } from './context/AuthContext';
+import MovieDetailPage from './pages/MovieDetailPage';
 
 // 3. (QUAN TRỌNG) Định nghĩa các tuyến đường (routes)
 const router = createBrowserRouter([
@@ -35,6 +36,12 @@ const router = createBrowserRouter([
       {
         path: '/register', // URL: /register
         element: <RegisterPage />, // Render trang đăng ký
+      },
+      {
+        // Định nghĩa route cho trang chi tiết
+        // ':movieId' là một "param" (tham số) động
+        path: '/movie/:movieId', // Ví dụ: /movie/550
+        element: <MovieDetailPage />,
       },
     ],
   },

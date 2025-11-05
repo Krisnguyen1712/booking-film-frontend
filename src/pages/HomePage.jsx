@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 // URL cơ sở của ảnh TMDB
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
@@ -47,23 +48,31 @@ function HomePage() {
           }}
         >
           {movies.map((movie) => (
-            <div
-              key={movie.id}
-              style={{
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-                padding: '10px',
-                textAlign: 'center',
-                backgroundColor: 'white',
-              }}
+            // Bọc thẻ <div> bằng thẻ <Link>
+            // 'to' trỏ đến URL /movie/với-id-phim
+            <Link 
+              to={`/movie/${movie.id}`} 
+              key={movie.id} 
+              style={{ textDecoration: 'none', color: 'black' }}
             >
-              <img
-                src={`${TMDB_IMAGE_BASE_URL}${movie.poster_path}`}
-                alt={movie.title}
-                style={{ width: '100%', borderRadius: '4px' }}
-              />
-              <h3 style={{ fontSize: '16px' }}>{movie.title}</h3>
-            </div>
+              <div
+                style={{
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  padding: '10px',
+                  textAlign: 'center',
+                  backgroundColor: 'white',
+                  height: '100%' // Giúp các thẻ có chiều cao bằng nhau
+                }}
+              >
+                <img
+                  src={`${TMDB_IMAGE_BASE_URL}${movie.poster_path}`}
+                  alt={movie.title}
+                  style={{ width: '100%', borderRadius: '4px' }}
+                />
+                <h3 style={{ fontSize: '16px' }}>{movie.title}</h3>
+              </div>
+            </Link>
           ))}
         </div>
       )}
