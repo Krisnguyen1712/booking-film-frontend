@@ -14,6 +14,8 @@ import App from './App';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+// Nhập (import) AuthProvider
+import { AuthProvider } from './context/AuthContext';
 
 // 3. (QUAN TRỌNG) Định nghĩa các tuyến đường (routes)
 const router = createBrowserRouter([
@@ -41,6 +43,8 @@ const router = createBrowserRouter([
 // 4. Render ứng dụng với RouterProvider
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   </React.StrictMode>
 );
