@@ -3,51 +3,75 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
-// Định nghĩa key để lưu trong localStorage
 const TOKEN_KEY = 'accessToken';
 
 const AuthContext = createContext();
 
+// --- BẮT ĐẦU PHẦN SỬA LỖI FONT ---
+
+/**
+ * Hàm hỗ trợ giải mã JWT (có thể xử lý UTF-8)
+ * Thay thế cho atob()
+ */
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    // 1. Thay thế các ký tự Base64URL
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    
+    // 2. Giải mã Base64 và xử lý UTF-8
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error("Lỗi khi giải mã JWT: ", e);
+    return null;
+  }
+}
+// --- KẾT THÚC PHẦN SỬA LỖI FONT ---
+
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem(TOKEN_KEY)); // Lấy token ngay từ localStorage
-  const [loading, setLoading] = useState(true); // Bắt đầu ở trạng thái "đang kiểm tra"
+  const [token, setToken] = useState(localStorage.getItem(TOKEN_KEY));
+  const [loading, setLoading] = useState(true);
 
-  // (QUAN TRỌNG) Dùng useEffect để kiểm tra token khi mới tải trang
   useEffect(() => {
     const checkUserToken = async () => {
       if (token) {
         try {
-          // 1. "Giải mã" token (như cũ)
-          const payload = JSON.parse(atob(token.split('.')[1]));
+          // 1. (CẬP NHẬT) Dùng hàm mới
+          const payload = parseJwt(token);
+          if (!payload) throw new Error('Payload không hợp lệ');
 
-          // (NÂNG CAO) Kiểm tra xem token còn hạn không
-          const expiry = payload.exp * 1000; // exp (hết hạn) là (seconds), * 1000 = milliseconds
+          const expiry = payload.exp * 1000;
           if (expiry > Date.now()) {
-            // 2. Nếu token còn hạn, set user
             setUser(payload);
           } else {
-            // 3. Nếu hết hạn, xóa token
             setUser(null);
             setToken(null);
             localStorage.removeItem(TOKEN_KEY);
           }
         } catch (err) {
-          // 4. Nếu token sai (giải mã lỗi)
           console.error('Token không hợp lệ:', err);
           setUser(null);
           setToken(null);
           localStorage.removeItem(TOKEN_KEY);
         }
       }
-      // 5. Đánh dấu đã kiểm tra xong
       setLoading(false);
     };
 
     checkUserToken();
-  }, [token]); // Chạy lại hàm này mỗi khi 'token' thay đổi
+  }, [token]);
 
-  // Hàm xử lý Đăng nhập (Cập nhật)
   const login = async (email, password) => {
     try {
       const response = await axios.post('/api/auth/login', {
@@ -60,50 +84,37 @@ export function AuthProvider({ children }) {
         throw new Error('Không nhận được token từ server.');
       }
 
-      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      // 2. (CẬP NHẬT) Dùng hàm mới
+      const payload = parseJwt(accessToken);
 
-      // 1. (CẬP NHẬT) Lưu vào localStorage
       localStorage.setItem(TOKEN_KEY, accessToken);
-
-      // 2. Set state (state sẽ tự động cập nhật user qua useEffect ở trên)
       setToken(accessToken);
-      setUser(payload); // Set trực tiếp để UI cập nhật ngay
+      setUser(payload);
     } catch (err) {
       console.error('Lỗi đăng nhập:', err);
       throw err.response ? err.response.data : err;
     }
   };
 
-  // Hàm xử lý Đăng xuất (Cập nhật)
   const logout = () => {
     setUser(null);
     setToken(null);
-    // (CẬP NHẬT) Xóa khỏi localStorage
     localStorage.removeItem(TOKEN_KEY);
   };
 
-  // Hàm xử lý Đăng ký
   const register = async (email, password, fullName) => {
     try {
-      // 1. Gọi API Backend
       await axios.post('/api/auth/register', {
         email: email,
         password: password,
         fullName: fullName,
       });
-
-      // 2. (Không ném lỗi, vì đã thành công)
-      // Chúng ta không tự động đăng nhập,
-      // mà sẽ yêu cầu họ sang trang login để đăng nhập.
-      
     } catch (err) {
-      // Xử lý lỗi (ví dụ: email đã tồn tại)
       console.error('Lỗi đăng ký:', err);
-      // Ném lỗi ra để RegisterPage biết và hiển thị
       throw err.response ? err.response.data : err;
     }
   };
-
+  
   const value = {
     user,
     token,
@@ -116,10 +127,6 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {/* Chỉ render "con" (children) khi không còn loading.
-        Điều này ngăn việc Navbar hiển thị "Đăng nhập" trong 1s
-        trong khi Context đang "kiểm tra" token.
-      */}
       {!loading && children}
     </AuthContext.Provider>
   );
