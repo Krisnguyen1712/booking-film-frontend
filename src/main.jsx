@@ -14,6 +14,7 @@ import App from './App';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import BookingPage from './pages/BookingPage';
 // Nhập (import) AuthProvider
 import { AuthProvider } from './context/AuthContext';
 import MovieDetailPage from './pages/MovieDetailPage';
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
         // ':movieId' là một "param" (tham số) động
         path: '/movie/:movieId', // Ví dụ: /movie/550
         element: <MovieDetailPage />,
+      },
+      {
+        path: '/booking/:showtimeId', // Ví dụ: /booking/d862...
+        element: <BookingPage />,
       },
     ],
   },
