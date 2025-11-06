@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom'; // 1. Import useParams
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -24,8 +24,8 @@ function MovieDetailPage() {
 
         // 5. (QUAN TRỌNG) Gọi cả 2 API cùng lúc
         const [movieResponse, showtimesResponse] = await Promise.all([
-          axios.get(`/api/movies/${movieId}`),       // API chi tiết phim
-          axios.get(`/api/showtimes/movie/${movieId}`) // API lịch chiếu
+          apiClient.get(`/api/movies/${movieId}`),       // API chi tiết phim
+          apiClient.get(`/api/showtimes/movie/${movieId}`) // API lịch chiếu
         ]);
 
         setMovie(movieResponse.data.data);

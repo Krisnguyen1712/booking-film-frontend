@@ -1,7 +1,7 @@
 // src/pages/HomePage.jsx
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { Link } from 'react-router-dom';
 
 // URL cơ sở của ảnh TMDB
@@ -17,7 +17,7 @@ function HomePage() {
     const fetchPopularMovies = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/movies/popular');
+        const response = await apiClient.get('/api/movies/popular');
         setMovies(response.data.data);
         setError(null);
       } catch (err) {

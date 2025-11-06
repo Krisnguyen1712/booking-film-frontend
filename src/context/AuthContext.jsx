@@ -1,7 +1,7 @@
 // src/context/AuthContext.jsx
 
 import { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../api/axios';
 
 const TOKEN_KEY = 'accessToken';
 
@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/auth/login', {
+      const response = await apiClient.post('/api/auth/login', {
         email: email,
         password: password,
       });
@@ -104,7 +104,7 @@ export function AuthProvider({ children }) {
 
   const register = async (email, password, fullName) => {
     try {
-      await axios.post('/api/auth/register', {
+      await apiClient.post('/api/auth/register', {
         email: email,
         password: password,
         fullName: fullName,

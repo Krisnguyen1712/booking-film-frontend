@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 const TMDB_IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
@@ -31,7 +31,7 @@ function BookingPage() {
       try {
         setLoading(true);
         // 3a. Lấy chi tiết suất chiếu
-        const response = await axios.get(`/api/showtimes/${showtimeId}`, {
+        const response = await apiClient.get(`/api/showtimes/${showtimeId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -42,7 +42,7 @@ function BookingPage() {
 
         // 3b. (MỚI) Dùng tmdb_movie_id để gọi API lấy chi tiết phim
         if (showtimeInfo.tmdb_movie_id) {
-          const movieResponse = await axios.get(
+          const movieResponse = await apiClient.get(
             `/api/movies/${showtimeInfo.tmdb_movie_id}`
           );
           setMovieDetails(movieResponse.data.data);
@@ -84,7 +84,7 @@ function BookingPage() {
 
     try {
       // 4a. Gọi API POST /api/bookings
-      await axios.post(
+      await apiClient.post(
         '/api/bookings',
         {
           showtimeId: showtimeId,
